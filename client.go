@@ -127,7 +127,8 @@ func (c *Client) Get(ctx context.Context, path string, result interface{}) error
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("GET %s failed with status %d", path, resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("GET %s failed with status %d: %s", path, resp.StatusCode, string(body))
 	}
 
 	return json.NewDecoder(resp.Body).Decode(result)
@@ -141,7 +142,8 @@ func (c *Client) Post(ctx context.Context, path string, body, result interface{}
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("POST %s failed with status %d", path, resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("POST %s failed with status %d: %s", path, resp.StatusCode, string(body))
 	}
 
 	if result != nil {
@@ -158,7 +160,26 @@ func (c *Client) Put(ctx context.Context, path string, body, result interface{})
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("PUT %s failed with status %d", path, resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("PUT %s failed with status %d: %s", path, resp.StatusCode, string(body))
+	}
+
+	if result != nil {
+		return json.NewDecoder(resp.Body).Decode(result)
+	}
+	return nil
+}
+
+func (c *Client) Patch(ctx context.Context, path string, body, result interface{}) error {
+	resp, err := c.doRequest(ctx, "PATCH", path, body)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("PATCH %s failed with status %d: %s", path, resp.StatusCode, string(body))
 	}
 
 	if result != nil {
@@ -198,7 +219,8 @@ func (c *Client) Delete(ctx context.Context, path string, body interface{}) erro
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("DELETE %s failed with status %d", path, resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("DELETE %s failed with status %d: %s", path, resp.StatusCode, string(body))
 	}
 
 	return nil
@@ -212,7 +234,7 @@ type InstallationTokenResponse struct {
 
 // getInstallationTokenFromGitHub retrieves an installation access token from GitHub
 func getInstallationTokenFromGitHub(jwtToken string, installationID int, baseURL string) (string, error) {
-	url := fmt.Sprintf("%s/app/installations/%d/access_tokens", baseURL, installationID)
+	url := fmt.Sprintf("%s/app/installations/%d/access_tokens", strings.TrimSuffix(baseURL, "/"), installationID)
 
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {

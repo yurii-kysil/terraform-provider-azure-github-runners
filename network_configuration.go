@@ -125,7 +125,7 @@ func resourceNetworkConfigurationUpdate(ctx context.Context, d *schema.ResourceD
 	}
 
 	var result NetworkConfiguration
-	err := client.Put(ctx, fmt.Sprintf("/orgs/%s/settings/network-configurations/%s", client.organization, networkConfigID), req, &result)
+	err := client.Patch(ctx, fmt.Sprintf("/orgs/%s/settings/network-configurations/%s", client.organization, networkConfigID), req, &result)
 	if err != nil {
 		return diag.FromErr(err)
 	}

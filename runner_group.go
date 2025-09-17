@@ -187,10 +187,21 @@ func dataSourceRunnerGroup() *schema.Resource {
 func resourceRunnerGroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*Client)
 
+	visibility := d.Get("visibility").(string)
+	selectedRepositoryIDs := expandIntList(d.Get("selected_repository_ids").([]interface{}))
+
+	// Validate visibility and selected_repository_ids
+	if visibility == "all" && len(selectedRepositoryIDs) > 0 {
+		return diag.Errorf("selected_repository_ids cannot be set when visibility is 'all'")
+	}
+	if visibility == "selected" && len(selectedRepositoryIDs) == 0 {
+		return diag.Errorf("selected_repository_ids cannot be empty when visibility is 'selected'")
+	}
+
 	req := &CreateRunnerGroupRequest{
 		Name:                     d.Get("name").(string),
-		Visibility:               d.Get("visibility").(string),
-		SelectedRepositoryIDs:    expandIntList(d.Get("selected_repository_ids").([]interface{})),
+		Visibility:               visibility,
+		SelectedRepositoryIDs:    selectedRepositoryIDs,
 		Runners:                  expandIntList(d.Get("runners").([]interface{})),
 		AllowsPublicRepositories: d.Get("allows_public_repositories").(bool),
 		RestrictedToWorkflows:    d.Get("restricted_to_workflows").(bool),
@@ -238,10 +249,21 @@ func resourceRunnerGroupUpdate(ctx context.Context, d *schema.ResourceData, m in
 	client := m.(*Client)
 
 	runnerGroupID := d.Id()
+	visibility := d.Get("visibility").(string)
+	selectedRepositoryIDs := expandIntList(d.Get("selected_repository_ids").([]interface{}))
+
+	// Validate visibility and selected_repository_ids
+	if visibility == "all" && len(selectedRepositoryIDs) > 0 {
+		return diag.Errorf("selected_repository_ids cannot be set when visibility is 'all'")
+	}
+	if visibility == "selected" && len(selectedRepositoryIDs) == 0 {
+		return diag.Errorf("selected_repository_ids cannot be empty when visibility is 'selected'")
+	}
+
 	networkConfigID := d.Get("network_configuration_id").(string)
 	req := &UpdateRunnerGroupRequest{
 		Name:                     d.Get("name").(string),
-		Visibility:               d.Get("visibility").(string),
+		Visibility:               visibility,
 		AllowsPublicRepositories: boolPtr(d.Get("allows_public_repositories").(bool)),
 		RestrictedToWorkflows:    boolPtr(d.Get("restricted_to_workflows").(bool)),
 		SelectedWorkflows:        expandStringList(d.Get("selected_workflows").([]interface{})),
@@ -249,7 +271,7 @@ func resourceRunnerGroupUpdate(ctx context.Context, d *schema.ResourceData, m in
 	}
 
 	var result RunnerGroup
-	err := client.Put(ctx, fmt.Sprintf("/orgs/%s/actions/runner-groups/%s", client.organization, runnerGroupID), req, &result)
+	err := client.Patch(ctx, fmt.Sprintf("/orgs/%s/actions/runner-groups/%s", client.organization, runnerGroupID), req, &result)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -265,7 +287,7 @@ func resourceRunnerGroupUpdate(ctx context.Context, d *schema.ResourceData, m in
 		}
 		err := client.Put(ctx, fmt.Sprintf("/orgs/%s/actions/runner-groups/%s/repositories", client.organization, runnerGroupID), setReq, nil)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("failed to update runner group repositories: %v", err)
 		}
 	}
 
@@ -280,7 +302,7 @@ func resourceRunnerGroupUpdate(ctx context.Context, d *schema.ResourceData, m in
 		}
 		err := client.Put(ctx, fmt.Sprintf("/orgs/%s/actions/runner-groups/%s/runners", client.organization, runnerGroupID), setReq, nil)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("failed to update runner group runners: %v", err)
 		}
 	}
 

@@ -131,7 +131,12 @@ func resourceSelfHostedRunnerCreate(ctx context.Context, d *schema.ResourceData,
 	labels := expandStringList(d.Get("labels").([]interface{}))
 	workFolder := d.Get("work_folder").(string)
 
-	// Create JIT configuration for the runner
+	// Validate labels are not empty
+	if len(labels) == 0 {
+		return diag.Errorf("labels cannot be empty")
+	}
+
+	// Create JIT configuration for the runner (without labels)
 	req := &JITConfigRequest{
 		Name:          name,
 		RunnerGroupID: runnerGroupID,
@@ -207,17 +212,68 @@ func resourceSelfHostedRunnerUpdate(ctx context.Context, d *schema.ResourceData,
 
 	// Update labels if changed
 	if d.HasChange("labels") {
-		_, newLabels := d.GetChange("labels")
+		oldLabels, newLabels := d.GetChange("labels")
+		oldLabelList := expandStringList(oldLabels.([]interface{}))
 		newLabelList := expandStringList(newLabels.([]interface{}))
+		d.Set("labels", oldLabelList)
 
-		// Set labels (replaces all custom labels)
-		setReq := &SetLabelsRequest{
-			Labels: newLabelList,
+		// Validate labels are not empty
+		if len(newLabelList) == 0 {
+			return diag.Errorf("labels cannot be empty")
 		}
-		err := client.Put(ctx, fmt.Sprintf("/orgs/%s/actions/runners/%s/labels", client.organization, runnerID), setReq, nil)
+
+		// Get current runner to check read-only labels
+		var currentRunner SelfHostedRunner
+		err := client.Get(ctx, fmt.Sprintf("/orgs/%s/actions/runners/%s", client.organization, runnerID), &currentRunner)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("failed to get current runner: %v", err)
 		}
+
+		// Identify read-only labels (labels that are not custom)
+		readOnlyLabels := make(map[string]bool)
+
+		for _, label := range currentRunner.Labels {
+			// Read-only labels have type "read-only" or are system labels
+			if label.Type == "read-only" {
+				readOnlyLabels[label.Name] = true
+			}
+		}
+
+		// Check if any read-only labels are being removed
+		for _, oldLabel := range oldLabelList {
+			if readOnlyLabels[oldLabel] {
+				// Check if this read-only label is still in the new list
+				found := false
+				for _, newLabel := range newLabelList {
+					if newLabel == oldLabel {
+						found = true
+						break
+					}
+				}
+				if !found {
+					return diag.Errorf("cannot remove read-only label: %s", oldLabel)
+				}
+			}
+		}
+
+		// Filter out read-only labels from the request (only send custom labels)
+		customLabels := make([]string, 0)
+		for _, label := range newLabelList {
+			if !readOnlyLabels[label] {
+				customLabels = append(customLabels, label)
+			}
+		}
+
+		// Set labels (only custom labels)
+		setReq := &SetLabelsRequest{
+			Labels: customLabels,
+		}
+
+		err = client.Put(ctx, fmt.Sprintf("/orgs/%s/actions/runners/%s/labels", client.organization, runnerID), setReq, nil)
+		if err != nil {
+			return diag.Errorf("failed to update runner labels: %v", err)
+		}
+		d.Set("labels", newLabelList)
 	}
 
 	return resourceSelfHostedRunnerRead(ctx, d, m)
@@ -227,18 +283,25 @@ func resourceSelfHostedRunnerDelete(ctx context.Context, d *schema.ResourceData,
 	client := m.(*Client)
 
 	runnerID := d.Id()
-	runnerGroupID := d.Get("runner_group_id").(int)
 
-	// Remove from runner group if it was in one
-	if runnerGroupID > 0 {
-		err := client.Delete(ctx, fmt.Sprintf("/orgs/%s/actions/runner-groups/%d/runners/%s", client.organization, runnerGroupID, runnerID), nil)
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	// Get current runner to check status
+	var currentRunner SelfHostedRunner
+	err := client.Get(ctx, fmt.Sprintf("/orgs/%s/actions/runners/%s", client.organization, runnerID), &currentRunner)
+	if err != nil {
+		return diag.Errorf("failed to get runner status: %v", err)
 	}
 
-	// Note: We don't actually delete the runner from GitHub as that would require
-	// removing it from the self-hosted runner machine itself
+	// Validate that runner is offline before deletion
+	if currentRunner.Status != "offline" {
+		return diag.Errorf("cannot delete runner: runner must be offline before deletion, current status: %s", currentRunner.Status)
+	}
+
+	// Delete the runner from GitHub
+	err = client.Delete(ctx, fmt.Sprintf("/orgs/%s/actions/runners/%s", client.organization, runnerID), nil)
+	if err != nil {
+		return diag.Errorf("failed to delete runner: %v", err)
+	}
+
 	d.SetId("")
 	return nil
 }
