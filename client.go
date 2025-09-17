@@ -219,6 +219,10 @@ func (c *Client) Delete(ctx context.Context, path string, body interface{}) erro
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		// Treat 404 as success for DELETE operations (resource already deleted)
+		if resp.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		body, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("DELETE %s failed with status %d: %s", path, resp.StatusCode, string(body))
 	}
