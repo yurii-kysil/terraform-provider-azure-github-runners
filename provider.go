@@ -61,13 +61,11 @@ func Provider() *schema.Provider {
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"azure-github-runners_network_configuration": resourceNetworkConfiguration(),
-			"azure-github-runners_network_settings":      resourceNetworkSettings(),
 			"azure-github-runners_runner_group":          resourceRunnerGroup(),
 			"azure-github-runners_self_hosted_runner":    resourceSelfHostedRunner(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"azure-github-runners_network_configuration": dataSourceNetworkConfiguration(),
-			"azure-github-runners_network_settings":      dataSourceNetworkSettings(),
 			"azure-github-runners_runner_group":          dataSourceRunnerGroup(),
 			"azure-github-runners_self_hosted_runner":    dataSourceSelfHostedRunner(),
 			"azure-github-runners_runner_applications":   dataSourceRunnerApplications(),

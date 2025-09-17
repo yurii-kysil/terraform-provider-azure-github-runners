@@ -15,15 +15,6 @@ type NetworkConfigurationList struct {
 	NetworkConfigurations []NetworkConfiguration `json:"network_configurations"`
 }
 
-// NetworkSettings represents a GitHub organization network settings
-type NetworkSettings struct {
-	ID                     string `json:"id,omitempty"`
-	NetworkConfigurationID string `json:"network_configuration_id,omitempty"`
-	Name                   string `json:"name"`
-	SubnetID               string `json:"subnet_id"`
-	Region                 string `json:"region"`
-}
-
 // CreateNetworkConfigurationRequest represents the request to create a network configuration
 type CreateNetworkConfigurationRequest struct {
 	Name               string   `json:"name"`
@@ -202,27 +193,4 @@ type HostedRunner struct {
 type HostedRunnerList struct {
 	TotalCount int            `json:"total_count"`
 	Runners    []HostedRunner `json:"runners"`
-}
-
-// Repository represents a GitHub repository
-type Repository struct {
-	ID          int    `json:"id,omitempty"`
-	NodeID      string `json:"node_id,omitempty"`
-	Name        string `json:"name,omitempty"`
-	FullName    string `json:"full_name,omitempty"`
-	Private     bool   `json:"private,omitempty"`
-	HTMLURL     string `json:"html_url,omitempty"`
-	Description string `json:"description,omitempty"`
-	Fork        bool   `json:"fork,omitempty"`
-	URL         string `json:"url,omitempty"`
-	CreatedAt   string `json:"created_at,omitempty"`
-	UpdatedAt   string `json:"updated_at,omitempty"`
-	PushedAt    string `json:"pushed_at,omitempty"`
-	Visibility  string `json:"visibility,omitempty"`
-}
-
-// RepositoryList represents the response for listing repositories
-type RepositoryList struct {
-	TotalCount   int          `json:"total_count"`
-	Repositories []Repository `json:"repositories"`
 }

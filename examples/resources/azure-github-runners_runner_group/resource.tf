@@ -1,3 +1,7 @@
+data "azure-github-runners_network_configuration" "main" {
+  name = "production-network-config"
+}
+
 # Create a runner group for production workloads
 resource "azure-github-runners_runner_group" "production" {
   name       = "production-runners"
