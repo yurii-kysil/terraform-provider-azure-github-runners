@@ -31,7 +31,7 @@ lint:
 
 # Generate documentation
 docs:
-	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+	cd tools && go generate ./...
 
 # Run acceptance tests
 testacc:
