@@ -1,4 +1,4 @@
-.PHONY: build test clean install
+.PHONY: build test clean install release
 
 # Build the provider
 build:
@@ -16,6 +16,10 @@ clean:
 install: build
 	mkdir -p ~/.terraform.d/plugins/local/yurii-kysil/github-runners/1.0.0/linux_amd64
 	cp terraform-provider-azure-github-runners ~/.terraform.d/plugins/local/yurii-kysil/github-runners/1.0.0/linux_amd64/
+
+# Create a release (requires goreleaser)
+release:
+	goreleaser release --clean
 
 # Format code
 fmt:

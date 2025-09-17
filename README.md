@@ -23,6 +23,8 @@ terraform {
 }
 ```
 
+**Note:** This provider will be available on the Terraform Registry after the first release.
+
 ### Local Development
 
 1. Clone this repository
