@@ -14,8 +14,8 @@ clean:
 
 # Install the provider locally
 install: build
-	mkdir -p ~/.terraform.d/plugins/local/yurii-kysil/github-runners/1.0.0/linux_amd64
-	cp terraform-provider-azure-github-runners ~/.terraform.d/plugins/local/yurii-kysil/github-runners/1.0.0/linux_amd64/
+	mkdir -p ~/.terraform.d/plugins/local/yurii-kysil/azure-github-runners/1.0.0/linux_amd64
+	cp terraform-provider-azure-github-runners ~/.terraform.d/plugins/local/yurii-kysil/azure-github-runners/1.0.0/linux_amd64/
 
 # Create a release (requires goreleaser)
 release:

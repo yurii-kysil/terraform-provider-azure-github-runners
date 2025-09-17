@@ -21,7 +21,7 @@ func main() {
 
 	if debugMode {
 		opts.Debug = true
-		opts.ProviderAddr = "registry.terraform.io/hashicorp/github-runners"
+		opts.ProviderAddr = "registry.terraform.io/yurii-kysil/azure-github-runners"
 	}
 
 	plugin.Serve(opts)

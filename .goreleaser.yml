@@ -4,10 +4,17 @@ before:
     - go mod download
     - go mod tidy
     - go generate ./...
-
 builds:
   - env:
+      # goreleaser does not work with CGO, it could also complicate
+      # usage by users in CI/CD systems like Terraform Cloud where
+      # they are unable to install libraries.
       - CGO_ENABLED=0
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    flags:
+      - -trimpath
+    ldflags:
+      - "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}"
     goos:
       - freebsd
       - windows
@@ -15,27 +22,19 @@ builds:
       - darwin
     goarch:
       - amd64
+      - "386"
+      - arm
       - arm64
     ignore:
       - goos: darwin
-        goarch: arm64
-    ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
-    binary: terraform-provider-azure-github-runners_{{.Version}}
-
-archives:
-  - name_template: >-
-      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
-    format_overrides:
-      - goos: windows
-        format: zip
-    files:
-      - README.md
-      - LICENSE
-      - terraform-registry-manifest.json
+        goarch: "386"
+    binary: "{{ .ProjectName }}_v{{ .Version }}"
 
 checksum:
-  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
+  extra_files:
+    - glob: "terraform-registry-manifest.json"
+      name_template: "{{ .ProjectName }}_{{ .Version }}_manifest.json"
+  name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
   algorithm: sha256
 
 signs:
@@ -55,12 +54,12 @@ release:
     name: terraform-provider-azure-github-runners
   draft: false
   prerelease: "false"
-  name_template: 'v{{ .Version }}'
+  name_template: "v{{ .Version }}"
   mode: replace
 
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
