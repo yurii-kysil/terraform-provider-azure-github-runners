@@ -1,5 +1,5 @@
 # Create a network configuration for GitHub Actions
-resource "github_runners_network_configuration" "main" {
+resource "azure-github-runners_network_configuration" "main" {
   name            = "production-network-config"
   compute_service = "actions"
   network_settings_ids = [

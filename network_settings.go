@@ -44,6 +44,7 @@ func resourceNetworkSettings() *schema.Resource {
 
 func dataSourceNetworkSettings() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves GitHub organization network settings by ID.",
 		ReadContext: dataSourceNetworkSettingsRead,
 		Schema: map[string]*schema.Schema{
 			"name": {

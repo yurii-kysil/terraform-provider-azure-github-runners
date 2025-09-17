@@ -11,6 +11,7 @@ import (
 
 func resourceSelfHostedRunner() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages GitHub self-hosted runners with JIT configuration.",
 		CreateContext: resourceSelfHostedRunnerCreate,
 		ReadContext:   resourceSelfHostedRunnerRead,
 		UpdateContext: resourceSelfHostedRunnerUpdate,
@@ -79,6 +80,7 @@ func resourceSelfHostedRunner() *schema.Resource {
 
 func dataSourceSelfHostedRunner() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves a GitHub self-hosted runner by name.",
 		ReadContext: dataSourceSelfHostedRunnerRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -290,6 +292,7 @@ func dataSourceSelfHostedRunnerRead(ctx context.Context, d *schema.ResourceData,
 
 func dataSourceRunnerApplications() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves available runner applications for download.",
 		ReadContext: dataSourceRunnerApplicationsRead,
 		Schema: map[string]*schema.Schema{
 			"applications": {
@@ -327,6 +330,7 @@ func dataSourceRunnerApplications() *schema.Resource {
 
 func dataSourceRegistrationToken() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves a registration token for the organization.",
 		ReadContext: dataSourceRegistrationTokenRead,
 		Schema: map[string]*schema.Schema{
 			"token": {
@@ -346,6 +350,7 @@ func dataSourceRegistrationToken() *schema.Resource {
 
 func dataSourceRemoveToken() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves a remove token for the organization.",
 		ReadContext: dataSourceRemoveTokenRead,
 		Schema: map[string]*schema.Schema{
 			"token": {

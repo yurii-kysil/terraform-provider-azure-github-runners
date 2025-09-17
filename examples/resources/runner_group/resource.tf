@@ -1,5 +1,5 @@
 # Create a runner group for production workloads
-resource "github_runners_runner_group" "production" {
+resource "azure-github-runners_runner_group" "production" {
   name       = "production-runners"
   visibility = "selected"
 
@@ -14,5 +14,5 @@ resource "github_runners_runner_group" "production" {
     "my-org/my-repo/.github/workflows/deploy.yaml@refs/heads/main"
   ]
 
-  network_configuration_id = github_runners_network_configuration.main.id
+  network_configuration_id = azure-github-runners_network_configuration.main.id
 }

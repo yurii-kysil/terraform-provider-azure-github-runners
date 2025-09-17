@@ -12,6 +12,7 @@ import (
 
 func resourceRunnerGroup() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages GitHub self-hosted runner groups.",
 		CreateContext: resourceRunnerGroupCreate,
 		ReadContext:   resourceRunnerGroupRead,
 		UpdateContext: resourceRunnerGroupUpdate,
@@ -103,6 +104,7 @@ func resourceRunnerGroup() *schema.Resource {
 
 func dataSourceRunnerGroup() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves a GitHub self-hosted runner group by name.",
 		ReadContext: dataSourceRunnerGroupRead,
 		Schema: map[string]*schema.Schema{
 			"name": {

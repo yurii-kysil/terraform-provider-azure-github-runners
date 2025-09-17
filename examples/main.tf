@@ -22,7 +22,7 @@ provider "github-runners" {
 }
 
 # Network Configuration
-resource "github_runners_network_configuration" "main" {
+resource "azure-github-runners_network_configuration" "main" {
   name            = "production-network-config"
   compute_service = "actions"
   network_settings_ids = [
@@ -32,7 +32,7 @@ resource "github_runners_network_configuration" "main" {
 }
 
 # Runner Group
-resource "github_runners_runner_group" "main" {
+resource "azure-github-runners_runner_group" "main" {
   name       = "production-runners"
   visibility = "selected"
   selected_repository_ids = [
@@ -44,13 +44,13 @@ resource "github_runners_runner_group" "main" {
   selected_workflows = [
     "octo-org/octo-repo/.github/workflows/deploy.yaml@refs/heads/main"
   ]
-  network_configuration_id = github_runners_network_configuration.main.id
+  network_configuration_id = azure-github-runners_network_configuration.main.id
 }
 
 # Self-hosted Runner
-resource "github_runners_self_hosted_runner" "main" {
+resource "azure-github-runners_self_hosted_runner" "main" {
   name            = "runner-01"
-  runner_group_id = github_runners_runner_group.main.id
+  runner_group_id = azure-github-runners_runner_group.main.id
   labels = [
     "self-hosted",
     "X64",
@@ -61,24 +61,24 @@ resource "github_runners_self_hosted_runner" "main" {
 }
 
 # Data sources
-data "github_runners_network_configuration" "current" {
+data "azure-github-runners_network_configuration" "current" {
   name = "production-network-config"
 }
 
-data "github_runners_runner_group" "default" {
+data "azure-github-runners_runner_group" "default" {
   name = "Default"
 }
 
-data "github_runners_self_hosted_runner" "runner" {
+data "azure-github-runners_self_hosted_runner" "runner" {
   name            = "runner-01"
-  runner_group_id = github_runners_runner_group.main.id
+  runner_group_id = azure-github-runners_runner_group.main.id
 }
 
 # Runner Applications
-data "github_runners_runner_applications" "apps" {}
+data "azure-github-runners_runner_applications" "apps" {}
 
 # Registration Token
-data "github_runners_registration_token" "token" {}
+data "azure-github-runners_registration_token" "token" {}
 
 # Remove Token
-data "github_runners_remove_token" "remove_token" {}
+data "azure-github-runners_remove_token" "remove_token" {}

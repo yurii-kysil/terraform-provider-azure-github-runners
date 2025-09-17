@@ -1,2 +1,0 @@
-# Self-hosted runner can be imported by specifying the runner ID
-terraform import github_runners_self_hosted_runner.main 456

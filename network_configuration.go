@@ -11,6 +11,7 @@ import (
 
 func resourceNetworkConfiguration() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages GitHub organization network configurations for Actions.",
 		CreateContext: resourceNetworkConfigurationCreate,
 		ReadContext:   resourceNetworkConfigurationRead,
 		UpdateContext: resourceNetworkConfigurationUpdate,
@@ -48,6 +49,7 @@ func resourceNetworkConfiguration() *schema.Resource {
 
 func dataSourceNetworkConfiguration() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves a GitHub organization network configuration by name.",
 		ReadContext: dataSourceNetworkConfigurationRead,
 		Schema: map[string]*schema.Schema{
 			"name": {

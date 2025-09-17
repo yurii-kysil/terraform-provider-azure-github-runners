@@ -110,12 +110,12 @@ provider "github-runners" {
 
 ## Resources
 
-### github_runners_network_configuration
+### azure-github-runners_network_configuration
 
 Manages GitHub organization network configurations for Actions.
 
 ```hcl
-resource "github_runners_network_configuration" "main" {
+resource "azure-github-runners_network_configuration" "main" {
   name               = "production-network-config"
   compute_service    = "actions"
   network_settings_ids = [
@@ -125,12 +125,12 @@ resource "github_runners_network_configuration" "main" {
 }
 ```
 
-### github_runners_runner_group
+### azure-github-runners_runner_group
 
 Manages GitHub self-hosted runner groups.
 
 ```hcl
-resource "github_runners_runner_group" "main" {
+resource "azure-github-runners_runner_group" "main" {
   name       = "production-runners"
   visibility = "selected"
   selected_repository_ids = [
@@ -142,18 +142,18 @@ resource "github_runners_runner_group" "main" {
   selected_workflows = [
     "octo-org/octo-repo/.github/workflows/deploy.yaml@refs/heads/main"
   ]
-  network_configuration_id = github_runners_network_configuration.main.id
+  network_configuration_id = azure-github-runners_network_configuration.main.id
 }
 ```
 
-### github_runners_self_hosted_runner
+### azure-github-runners_self_hosted_runner
 
 Manages GitHub self-hosted runners.
 
 ```hcl
-resource "github_runners_self_hosted_runner" "main" {
+resource "azure-github-runners_self_hosted_runner" "main" {
   name           = "runner-01"
-  runner_group_id = github_runners_runner_group.main.id
+  runner_group_id = azure-github-runners_runner_group.main.id
   labels = [
     "self-hosted",
     "X64",
@@ -166,59 +166,59 @@ resource "github_runners_self_hosted_runner" "main" {
 
 ## Data Sources
 
-### github_runners_network_configuration
+### azure-github-runners_network_configuration
 
 Retrieves the current network configuration.
 
 ```hcl
-data "github_runners_network_configuration" "current" {
+data "azure-github-runners_network_configuration" "current" {
   name = "production-network-config"
 }
 ```
 
-### github_runners_runner_group
+### azure-github-runners_runner_group
 
 Retrieves a runner group by name.
 
 ```hcl
-data "github_runners_runner_group" "default" {
+data "azure-github-runners_runner_group" "default" {
   name = "Default"
 }
 ```
 
-### github_runners_self_hosted_runner
+### azure-github-runners_self_hosted_runner
 
 Retrieves a self-hosted runner by name.
 
 ```hcl
-data "github_runners_self_hosted_runner" "runner" {
+data "azure-github-runners_self_hosted_runner" "runner" {
   name           = "runner-01"
   runner_group_id = 123
 }
 ```
 
-### github_runners_runner_applications
+### azure-github-runners_runner_applications
 
 Retrieves available runner applications for download.
 
 ```hcl
-data "github_runners_runner_applications" "apps" {}
+data "azure-github-runners_runner_applications" "apps" {}
 ```
 
-### github_runners_registration_token
+### azure-github-runners_registration_token
 
 Retrieves a registration token for the organization.
 
 ```hcl
-data "github_runners_registration_token" "token" {}
+data "azure-github-runners_registration_token" "token" {}
 ```
 
-### github_runners_remove_token
+### azure-github-runners_remove_token
 
 Retrieves a remove token for the organization.
 
 ```hcl
-data "github_runners_remove_token" "remove_token" {}
+data "azure-github-runners_remove_token" "remove_token" {}
 ```
 
 ## API Coverage
