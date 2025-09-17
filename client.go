@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"os"
 
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -57,14 +56,23 @@ func NewClientWithAppAuth(appAuth *AppAuth, baseURL, organization string, insecu
 		}
 	}
 
-	// Read the private key file
-	privateKeyPEM, err := os.ReadFile(appAuth.PEMFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read private key file: %v", err)
+	var appPemFile string
+
+	if appAuth.PEMFile != "" {
+		// The Go encoding/pem package only decodes PEM formatted blocks
+		// that contain new lines. Some platforms, like Terraform Cloud,
+		// do not support new lines within Environment Variables.
+		// Any occurrence of \n in the `pem_file` argument's value
+		// (explicit value, or default value taken from
+		// GITHUB_APP_PEM_FILE Environment Variable) is replaced with an
+		// actual new line character before decoding.
+		appPemFile = strings.Replace(appAuth.PEMFile, `\n`, "\n", -1)
+	} else {
+		return nil, fmt.Errorf("app_auth.pem_file must be set and contain a non-empty value")
 	}
 
 	// Generate JWT token
-	jwtToken, err := generateJWT(appAuth.ID, string(privateKeyPEM))
+	jwtToken, err := generateJWT(appAuth.ID, appPemFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate JWT token: %v", err)
 	}
