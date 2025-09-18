@@ -77,10 +77,10 @@ type RunnerApplication struct {
 
 // JITConfigRequest represents the request to create a JIT configuration
 type JITConfigRequest struct {
-	Name          string   `json:"name"`
-	RunnerGroupID int      `json:"runner_group_id"`
-	Labels        []string `json:"labels"`
-	WorkFolder    string   `json:"work_folder,omitempty"`
+	Name           string   `json:"name"`
+	RunnerGroupID  int      `json:"runner_group_id"`
+	ReadOnlyLabels []string `json:"labels"`
+	WorkFolder     string   `json:"work_folder,omitempty"`
 }
 
 // JITConfigResponse represents the response for JIT configuration

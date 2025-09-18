@@ -24,16 +24,20 @@ resource "azure-github-runners_runner_group" "production" {
   network_configuration_id = azure-github-runners_network_configuration.main.id
 }
 
-# Create a self-hosted runner with custom labels
+# Create a self-hosted runner with readonly and custom labels
 resource "azure-github-runners_self_hosted_runner" "main" {
   name            = "runner-01"
   runner_group_id = azure-github-runners_runner_group.production.id
 
-  labels = [
+  readonly_labels = [
     "self-hosted",
     "X64",
-    "Linux",
-    "custom-label"
+    "Linux"
+  ]
+
+  labels = [
+    "custom-label",
+    "production"
   ]
 
   work_folder = "_work"
@@ -45,11 +49,12 @@ resource "azure-github-runners_self_hosted_runner" "main" {
 
 ### Required
 
+- `labels` (List of String) Custom labels to add to the runner
 - `name` (String) Name of the self-hosted runner
+- `readonly_labels` (List of String) Read-only labels to be set during runner creation (cannot be modified after creation)
 
 ### Optional
 
-- `labels` (List of String) Custom labels to add to the runner
 - `runner_group_id` (Number) ID of the runner group to add the runner to
 - `work_folder` (String) Working directory for job execution
 

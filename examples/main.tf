@@ -51,10 +51,14 @@ resource "azure-github-runners_runner_group" "main" {
 resource "azure-github-runners_self_hosted_runner" "main" {
   name            = "runner-01"
   runner_group_id = azure-github-runners_runner_group.main.id
-  labels = [
+
+  readonly_labels = [
     "self-hosted",
     "X64",
-    "Linux",
+    "Linux"
+  ]
+
+  labels = [
     "custom-label"
   ]
   work_folder = "_work"
